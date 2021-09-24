@@ -1,10 +1,12 @@
 # nfa
 
-This is nfa or [nfstream]() for [Arkime](https://www.arkime.com). It's a simple demo program to use nfstream to check a pcap from Arkime based on id or rootId. It has only been tested on Arkime v2.7.1 and v3.0.0 running on Ubuntu 18.04 LTS with python 3.8.
+This is nfa or [nfstream](https://www.nfstream.org/) for [Arkime](https://www.arkime.com). It's a simple demo program to use nfstream to check a pcap from Arkime based on id or rootId. It has only been tested on Arkime v2.7.1 and v3.0.0 running on [Ubuntu](https://ubuntu.com/) 18.04 LTS with [Python](https://www.python.org/) 3.8.
 
 ## Installation
 
-If you don't have python3.8 and python3.8-venv installed you can use **make apt-install** to install them and curl used to get static files. Then run the following command to install requiered Python packages and get local copies of swagger and redoc.
+If you don't have python3.8 and python3.8-venv installed you can use **make apt-install** to install them and curl used to get static files. 
+
+Install required Python packages and get local copies of swagger and redoc by running.
 
     make install
 
@@ -17,11 +19,11 @@ Copy the default configuration and change the default values.
 
 ## Usage
 
-Run it for "production" use, binds to all interfaces,  with
+Run it for "production" use, binds to all interfaces,  with:
 
     make run
 
-or with binding to 127.0.0.1 and with reloads based on changed files
+Or for development bind to 127.0.0.1 and do dynamic reloads based on changed files
 
     make development
 
