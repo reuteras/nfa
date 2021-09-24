@@ -10,7 +10,7 @@ Install required Python packages and get local copies of swagger and redoc by ru
 
     make install
 
-The **install** targets comments one line in the nfstream source code to make everything work. If you have a better solution please create an issue on GitHub.
+The **install** targets comments one line in the nfstream source code to make everything work. If you have a better solution please create an [issue](https://github.com/ansv46/nfa/issues) on GitHub.
 
 Copy the default configuration and change the default values.
 
