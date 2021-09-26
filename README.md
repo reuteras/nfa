@@ -1,6 +1,6 @@
 # nfa
 
-This is nfa or [nfstream](https://www.nfstream.org/) for [Arkime](https://www.arkime.com). It's a simple demo program to use nfstream to check a pcap from Arkime based on id or rootId. It has only been tested on Arkime v2.7.1 and v3.0.0 running on [Ubuntu](https://ubuntu.com/) 18.04 LTS with [Python](https://www.python.org/) 3.8.
+This is nfa or [nfstream](https://www.nfstream.org/) for [Arkime](https://www.arkime.com). It's a simple demo program to use nfstream to check a pcap from Arkime based on id or rootId. It has only been tested on Arkime v2.7.1 and v3.0.0 running on [Ubuntu](https://ubuntu.com/) 18.04 LTS with [Python](https://www.python.org/) 3.8 and [FastAPI](https://fastapi.tiangolo.com).
 
 ## Installation
 
@@ -75,3 +75,20 @@ Below is an example output from the pcap 2021-09-22-Squirrelwaffle-with-Qakbot-a
         "user_agent":"",
         "content_type":"text/html"
     }
+
+## Docker
+
+WARNING! This is a test.
+
+The following is a quick and dirty test to put nfa into a Docker container. Build it with:
+
+    sudo docker build --tag=nfa .
+
+Copy the default configuration and change the default values.
+
+    cp config-default.ini config.ini
+    $EDITOR config.ini
+
+Run the container with the following command.
+
+    sudo docker run --rm --name nfa -v "$PWD/config.ini":/nfa/config.ini -p 5001:5001 nfa
