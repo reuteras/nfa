@@ -23,7 +23,7 @@ tmp:
 	mkdir -p tmp
 
 run:
-	. nfa/bin/activate && uvicorn main:app --port 5001 --host "*"
+	. nfa/bin/activate && uvicorn main:app --port 5001 --host 0.0.0.0
 
 development:
 	. nfa/bin/activate && uvicorn main:app --port 5001 --reload
