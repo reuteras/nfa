@@ -14,7 +14,9 @@ WORKDIR /
 RUN apt-get update --fix-missing && \
     apt-get install -qqy --no-install-recommends \
         curl \
+        gcc \
         git \
+        python3-dev \
         python3-pip \
         python3-venv && \
     git clone https://github.com/reuteras/nfa.git && \
