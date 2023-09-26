@@ -20,12 +20,14 @@ from nfstream import NFStreamer
 from pydantic_settings import BaseSettings
 from requests.auth import HTTPDigestAuth
 from starlette.responses import Response
+from urllib3.exceptions import InsecureRequestWarning
 
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 session = requests.Session()
 session.verify = False
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 class PrettyJSONResponse(Response):
@@ -116,7 +118,7 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
 
     if not pcap_file.is_file():
         query = 'id == ' + rootid
-        base_url = settings.api_proto + node + '.' + settings.api_domain + ':' + \
+        base_url = settings.api_proto + node + settings.api_domain + ':' + \
                 settings.api_port + '/sessions.pcap?length=' + str(limit)
         url = base_url + \
                 "&startTime=" + start + \
