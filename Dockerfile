@@ -9,10 +9,7 @@ LABEL org.opencontainers.image.description="Use nfstream from Arkime."
 
 ENV DEBIAN_FRONTEND noninteractive
 
-WORKDIR /nfa
-
-COPY main.py /nfa
-COPY requirements.txt /nfa
+WORKDIR /
 
 RUN apt-get update --fix-missing && \
     apt-get install -qqy --no-install-recommends \
@@ -21,6 +18,9 @@ RUN apt-get update --fix-missing && \
         python3-dev \
         python3-pip \
         python3-venv && \
+    git clone https://github.com/reuteras/nfa.git && \
+    cd nfa && \
+    rm -rf .git* && \
     python3 -m venv nfa && \
     . nfa/bin/activate && python3 -m pip install --no-cache-dir -U pip setuptools && \
     . nfa/bin/activate && python3 -m pip install --no-cache-dir -r requirements.txt && \
