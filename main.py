@@ -17,9 +17,13 @@ from fastapi.openapi.docs import (
 )
 from fastapi.staticfiles import StaticFiles
 from nfstream import NFStreamer
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from requests.auth import HTTPDigestAuth
 from starlette.responses import Response
+
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 class PrettyJSONResponse(Response):
     """Class to pretty print json response."""
@@ -46,8 +50,6 @@ class Settings(BaseSettings):
     api_proto: str = "http://"
     api_tempdir: str = "tmp"
 
-    config = configparser.ConfigParser()
-    config.read('config.ini')
     if config['api']['username'] != "":
         api_username = config['api']['username']
     if config['api']['password'] != "":
