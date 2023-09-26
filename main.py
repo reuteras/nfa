@@ -96,7 +96,7 @@ def query_arkime(start, stop, query, field):
             "&stopTime=" + stop + \
             "&expression=" + ul.quote_plus(query) + \
             "&exp=" + field
-    result = requests.get(query_url, \
+    result = requests.get(query_url, verify=False, \
             auth=HTTPDigestAuth(settings.api_username, settings.api_password))
     print(settings.api_username)
     return result.content.decode()
@@ -124,7 +124,7 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
                 "&expression=" + ul.quote_plus(query)
 
         try:
-            pcap_data = requests.get(url, \
+            pcap_data = requests.get(url, verify=False,\
                     auth=HTTPDigestAuth(settings.api_username, settings.api_password))
         except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
             print(error)
