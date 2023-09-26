@@ -24,6 +24,9 @@ from starlette.responses import Response
 
 config = configparser.ConfigParser()
 config.read('config.ini')
+session = requests.Session()
+session.verify = False
+
 
 class PrettyJSONResponse(Response):
     """Class to pretty print json response."""
