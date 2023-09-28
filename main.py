@@ -9,7 +9,7 @@ import urllib.parse as ul
 from pathlib import Path
 import dateutil.parser as dp
 import requests
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.openapi.docs import (
     get_redoc_html,
     get_swagger_ui_html,
@@ -106,10 +106,15 @@ def query_arkime(start, stop, query, field):
             "&stopTime=" + stop + \
             "&expression=" + ul.quote_plus(query) + \
             "&exp=" + field
-    result = requests.get(query_url, verify=False, timeout=60, \
-            auth=HTTPDigestAuth(settings.api_username, settings.api_password))
+    
+    if settings.api_multi:
+        result = requests.get(query_url, verify=False, timeout=60, \
+                auth=HTTPDigestAuth(settings.api_username, settings.api_password))
+    else:
+        result = requests.get(query_url, verify=False, timeout=60)
     if result.status_code != 200:
         print(result.content.decode())
+        raise HTTPException(status_code=404, detail="Item not found")
     return result.content.decode()
 
 def get_rootid_from_sessionid(start, stop, session_id):
@@ -119,7 +124,7 @@ def get_rootid_from_sessionid(start, stop, session_id):
     if root_id == "":
         root_id = session_id
 
-    return root_id
+    return root_id.strip()
 
 def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
     """retrieve pcap for id and and save as <id>.pcap in tempdir"""
@@ -161,21 +166,24 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
     root_id = get_rootid_from_sessionid(start, stop, session_id)
     pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, 30)
 
-    stream = NFStreamer(str(pcap_file),
-        decode_tunnels=True,
-        bpf_filter=None,
-        promiscuous_mode=True,
-        snapshot_length=1536,
-        idle_timeout=120,
-        active_timeout=1800,
-        accounting_mode=0,
-        udps=None,
-        n_dissections=20,
-        statistical_analysis=False,
-        splt_analysis=0,
-        n_meters=0,
-        performance_report=0
-    )
+    try:
+        stream = NFStreamer(str(pcap_file),
+            decode_tunnels=True,
+            bpf_filter=None,
+            promiscuous_mode=True,
+            snapshot_length=1536,
+            idle_timeout=120,
+            active_timeout=1800,
+            accounting_mode=0,
+            udps=None,
+            n_dissections=20,
+            statistical_analysis=False,
+            splt_analysis=0,
+            n_meters=0,
+            performance_report=0
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=404, detail="NFStreamer failed: " + exc) from exc
 
     for flow in stream:
         for key in flow.keys():
