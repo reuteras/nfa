@@ -22,6 +22,7 @@ RUN apt-get update --fix-missing && \
     git clone https://github.com/reuteras/nfa.git && \
     cd nfa && \
     rm -rf .git* && \
+    mkdir tmp && \
     python3 -m venv .venv && \
     .venv/bin/python3 -m pip install --no-cache-dir -U pip setuptools && \
     .venv/bin/python3 -m pip install --no-cache-dir -r requirements.txt && \
