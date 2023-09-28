@@ -3,15 +3,14 @@ install: environment install-packages static tmp
 all: run
 
 apt-install:
-	sudo apt install -y python3.8-venv curl
+	sudo apt install -y python3-venv curl
 
 environment:
-	python3.8 -m venv nfa
+	python3 -m venv .venv
 
 install-packages:
-	. nfa/bin/activate && python3 -m pip install -U pip
-	. nfa/bin/activate && python3 -m pip install -U -r requirements.txt
-	sed -e 's/^mp.set_start_method("fork")/# mp.set_start_method("fork")/' -i nfa/lib64/python3*/site-packages/nfstream/streamer.py
+	. .venv/bin/activate && python3 -m pip install -U pip
+	. .venv/bin/activate && python3 -m pip install -U -r requirements.txt
 
 static:
 	mkdir -p static
@@ -23,16 +22,16 @@ tmp:
 	mkdir -p tmp
 
 run:
-	. nfa/bin/activate && uvicorn main:app --port 5001 --host 0.0.0.0
+	. .venv/bin/activate && uvicorn main:app --port 5001 --host 0.0.0.0
 
 development:
-	. nfa/bin/activate && uvicorn main:app --port 5001 --reload
+	. .venv/bin/activate && uvicorn main:app --port 5001 --reload
 
 pylint:
-	. nfa/bin/activate && pylint main.py
+	. .venv/bin/activate && pylint main.py
 
 clean:
 	rm -rf tmp __pycache__/
 
 distclean: clean
-	rm -rf nfa static
+	rm -rf .venv static
