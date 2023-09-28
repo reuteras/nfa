@@ -23,8 +23,8 @@ RUN apt-get update --fix-missing && \
     cd nfa && \
     rm -rf .git* && \
     python3 -m venv .venv && \
-    . .venv/bin/activate && python3 -m pip install --no-cache-dir -U pip setuptools && \
-    . .venv/bin/activate && python3 -m pip install --no-cache-dir -r requirements.txt && \
+    .venv/bin/python3 -m pip install --no-cache-dir -U pip setuptools && \
+    .venv/bin/python3 -m pip install --no-cache-dir -r requirements.txt && \
     mkdir static && cd static \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css && \
