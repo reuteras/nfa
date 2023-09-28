@@ -147,8 +147,11 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
                 "&expression=" + ul.quote_plus(query)
 
         try:
-            pcap_data = requests.get(url, verify=False, timeout=300, \
-                    auth=HTTPDigestAuth(settings.api_username, settings.api_password))
+            if settings.api_multi:
+                pcap_data = requests.get(url, verify=False, timeout=300, \
+                        auth=HTTPDigestAuth(settings.api_username, settings.api_password))
+            else:
+                pcap_data = requests.get(url, verify=False, timeout=300)
         except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
             print(error)
             sys.exit()
