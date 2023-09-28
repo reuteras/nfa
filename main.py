@@ -21,15 +21,17 @@ from pydantic_settings import BaseSettings
 from requests.auth import HTTPDigestAuth
 from starlette.responses import Response
 from urllib3.exceptions import InsecureRequestWarning
+from urllib3 import disable_warnings
 
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 session = requests.Session()
 session.verify = False
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+disable_warnings(category=InsecureRequestWarning)
 
 
+# pylint: disable=R0903
 class PrettyJSONResponse(Response):
     """Class to pretty print json response."""
     media_type = "application/json"
@@ -54,6 +56,7 @@ class Settings(BaseSettings):
     api_port: str = "8005"
     api_proto: str = "http://"
     api_tempdir: str = "tmp"
+    api_multi: bool = True
 
     if config['api']['username'] != "":
         api_username = config['api']['username']
@@ -63,6 +66,11 @@ class Settings(BaseSettings):
         api_url = config['api']['url']
     # Allow domain to be empty
     api_domain = config['api']['domain']
+    try:
+        api_multi = config['api']['multi']
+    except KeyError:
+        api_multi = True
+
     if config['api']['port'] != "":
         api_port = config['api']['port']
     if config['api']['proto'] != "":
@@ -98,7 +106,7 @@ def query_arkime(start, stop, query, field):
             "&stopTime=" + stop + \
             "&expression=" + ul.quote_plus(query) + \
             "&exp=" + field
-    result = requests.get(query_url, verify=False, \
+    result = requests.get(query_url, verify=False, timeout=60, \
             auth=HTTPDigestAuth(settings.api_username, settings.api_password))
     print(settings.api_username)
     return result.content.decode()
@@ -114,19 +122,26 @@ def get_rootid_from_sessionid(start, stop, session_id):
 
 def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
     """retrieve pcap for id and and save as <id>.pcap in tempdir"""
-    pcap_file = Path(settings.api_tempdir + '/' + node + '-' + rootid + '.pcap')
+    if settings.api_multi:
+        pcap_file = Path(settings.api_tempdir + '/' + node + '-' + rootid + '.pcap')
+    else:
+        pcap_file = Path(settings.api_tempdir + '/' + rootid + '.pcap')
 
     if not pcap_file.is_file():
         query = 'id == ' + rootid
-        base_url = settings.api_proto + node + settings.api_domain + ':' + \
-                settings.api_port + '/sessions.pcap?length=' + str(limit)
+        if settings.api_multi:
+            base_url = settings.api_proto + node + settings.api_domain + ':' + \
+                    settings.api_port + '/sessions.pcap?length=' + str(limit)
+        else:
+            base_url = settings.api_url + ':' + \
+                    settings.api_port + '/sessions.pcap?length=' + str(limit)
         url = base_url + \
                 "&startTime=" + start + \
                 "&stopTime=" + stop + \
                 "&expression=" + ul.quote_plus(query)
 
         try:
-            pcap_data = requests.get(url, verify=False,\
+            pcap_data = requests.get(url, verify=False, timeout=300, \
                     auth=HTTPDigestAuth(settings.api_username, settings.api_password))
         except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
             print(error)
@@ -159,7 +174,7 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
         splt_analysis=0,
         n_meters=0,
         performance_report=0
-        )
+    )
 
     for flow in stream:
         for key in flow.keys():
