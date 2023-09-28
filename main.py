@@ -108,7 +108,8 @@ def query_arkime(start, stop, query, field):
             "&exp=" + field
     result = requests.get(query_url, verify=False, timeout=60, \
             auth=HTTPDigestAuth(settings.api_username, settings.api_password))
-    print(settings.api_username)
+    if result.status_code != 200:
+        print(result.content.decode())
     return result.content.decode()
 
 def get_rootid_from_sessionid(start, stop, session_id):

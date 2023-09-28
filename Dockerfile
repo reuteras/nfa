@@ -22,9 +22,9 @@ RUN apt-get update --fix-missing && \
     git clone https://github.com/reuteras/nfa.git && \
     cd nfa && \
     rm -rf .git* && \
-    python3 -m venv nfa && \
-    . nfa/bin/activate && python3 -m pip install --no-cache-dir -U pip setuptools && \
-    . nfa/bin/activate && python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m venv .venv && \
+    . .venv/bin/activate && python3 -m pip install --no-cache-dir -U pip setuptools && \
+    . .venv/bin/activate && python3 -m pip install --no-cache-dir -r requirements.txt && \
     mkdir static && cd static \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css && \
@@ -35,5 +35,5 @@ RUN apt-get update --fix-missing && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /nfa
-CMD ["./nfa/bin/uvicorn", "main:app", "--port", "5001", "--host", "*"]
+CMD ["./.venv/bin/uvicorn", "main:app", "--port", "5001", "--host", "*"]
 EXPOSE 5001
