@@ -30,7 +30,7 @@ RUN apt-get update --fix-missing && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css && \
     curl -O -s https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js && \
-    apt remove -y curl gcc git && \
+    apt remove -y gcc git && \
     apt autoremove -y && \
     apt autoclean && \
     rm -rf /var/lib/apt/lists/*
