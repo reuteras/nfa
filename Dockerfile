@@ -11,6 +11,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 WORKDIR /
 
+# hadolint ignore=DL3003,DL3008,SC1035
 RUN apt-get update --fix-missing && \
     apt-get install -qqy --no-install-recommends \
         curl \
@@ -30,9 +31,9 @@ RUN apt-get update --fix-missing && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css && \
     curl -O -s https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js && \
-    apt remove -y gcc git && \
-    apt autoremove -y && \
-    apt autoclean && \
+    apt-get remove -y gcc git && \
+    apt-get autoremove -y && \
+    apt-get autoclean && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /nfa

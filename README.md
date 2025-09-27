@@ -34,7 +34,7 @@ Enable it via Wise or config.ini.
 
 ## Example output
 
-Below is an example output from the pcap 2021-09-22-Squirrelwaffle-with-Qakbot-and-Cobalt-Strike.pcap.zip available from from https://www.malware-traffic-analysis.net/2021/09/22/index.html.
+Below is an example output from the pcap 2021-09-22-Squirrelwaffle-with-Qakbot-and-Cobalt-Strike.pcap.zip available from from [https://www.malware-traffic-analysis.net/2021/09/22/index.html](https://www.malware-traffic-analysis.net/2021/09/22/index.html).
 
     {
         "id":0,
