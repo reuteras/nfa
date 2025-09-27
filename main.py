@@ -7,6 +7,7 @@ import sys
 import typing
 import urllib.parse as ul
 from pathlib import Path
+
 import dateutil.parser as dp
 import requests
 from fastapi import FastAPI, HTTPException
@@ -20,9 +21,8 @@ from nfstream import NFStreamer
 from pydantic_settings import BaseSettings
 from requests.auth import HTTPDigestAuth
 from starlette.responses import Response
-from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
-
+from urllib3.exceptions import InsecureRequestWarning
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -106,13 +106,13 @@ def query_arkime(start, stop, query, field):
             "&stopTime=" + stop + \
             "&expression=" + ul.quote_plus(query) + \
             "&exp=" + field
-    
+
     if settings.api_multi:
         result = requests.get(query_url, verify=False, timeout=60, \
                 auth=HTTPDigestAuth(settings.api_username, settings.api_password))
     else:
         result = requests.get(query_url, verify=False, timeout=60)
-    if result.status_code != 200:
+    if result.status_code != 200: # noqa PLR2004
         print(result.content.decode())
         raise HTTPException(status_code=404, detail="Item not found")
     return result.content.decode()
@@ -127,7 +127,7 @@ def get_rootid_from_sessionid(start, stop, session_id):
     return root_id.strip()
 
 def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
-    """retrieve pcap for id and and save as <id>.pcap in tempdir"""
+    """Retrieve pcap for id and and save as <id>.pcap in tempdir."""
     if settings.api_multi:
         pcap_file = Path(settings.api_tempdir + '/' + node + '-' + rootid + '.pcap')
     else:
@@ -212,7 +212,6 @@ async def root():
 async def get_rootid(input_id: str, iso_start: str = "1970-01-01T00:00:00.000Z", \
         iso_stop: str = "2100-12-31T23:59:59.000Z", node: str = "node"):
     """Get parameters from Arkime and return nfstream results as raw json."""
-
     data = get_nfstream_info(input_id, iso_start, iso_stop, node)
 
     return json.loads(json.dumps(data))
@@ -221,7 +220,6 @@ async def get_rootid(input_id: str, iso_start: str = "1970-01-01T00:00:00.000Z",
 async def get_visual_rootid(input_id: str, iso_start: str = "1970-01-01T00:00:00.000Z", \
         iso_stop: str = "2100-12-31T23:59:59.000Z", node: str = "default-arkime-node"):
     """Get parameters from Arkime and return pretty printed nfstream results."""
-
     data = get_nfstream_info(input_id, iso_start, iso_stop, node)
 
     return PrettyJSONResponse(data)

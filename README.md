@@ -4,7 +4,7 @@ This is nfa or [nfstream](https://www.nfstream.org/) for [Arkime](https://www.ar
 
 ## Installation
 
-If you don't have python3.10 and python3.10-venv installed you can use **make apt-install** to install them and curl used to get static files. 
+If you don't have python3.10 and python3.10-venv installed you can use **make apt-install** to install them and curl used to get static files.
 
 Install required Python packages and get local copies of swagger and redoc by running.
 

@@ -1,5 +1,0 @@
-fastapi[all]
-nfstream
-pydantic-settings
-pylint
-requests

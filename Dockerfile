@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM debian:13.0
 LABEL maintainer="anders.svensson.46@protonmail.com"
 LABEL org.opencontainers.image.authors="anders.svensson.46@protonmail.com"
 LABEL org.opencontainers.image.url="https://github.com/ansv46/nfa"
