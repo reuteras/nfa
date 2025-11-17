@@ -11,6 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
+# hadolint ignore=DL3003
 RUN apt-get update --fix-missing && \
     apt-get install -qqy --no-install-recommends \
         ca-certificates=20250101 \
