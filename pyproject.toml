@@ -3,7 +3,7 @@ name = "nfa"
 version = "0.1.0"
 description = "nfstream for Arkime"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11.9,<3.12"
 license = { text = "MIT" }
 dependencies = [
     "fastapi[all]>=0.117.1",
