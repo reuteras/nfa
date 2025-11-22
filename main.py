@@ -155,9 +155,14 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
     validate_path_component(rootid)
     if settings.api_multi:
         validate_path_component(node)
-        pcap_file = Path(settings.api_tempdir + "/" + node + "-" + rootid + ".pcap")
+        pcap_file = Path(settings.api_tempdir) / (node + "-" + rootid + ".pcap")
     else:
-        pcap_file = Path(settings.api_tempdir + "/" + rootid + ".pcap")
+        pcap_file = Path(settings.api_tempdir) / (rootid + ".pcap")
+    # Ensure the resolved path is within the intended directory
+    pcap_file = pcap_file.resolve()
+    base_dir = Path(settings.api_tempdir).resolve()
+    if not str(pcap_file).startswith(str(base_dir)):
+        raise ValueError("Path traversal detected: file would be outside temp directory")
 
     if not pcap_file.is_file():
         query = "id == " + rootid
