@@ -2,6 +2,7 @@
 """nfa - nfstream for Arkime."""
 
 import configparser
+import hashlib
 import json
 import re
 import sys
@@ -105,19 +106,15 @@ def clean_root_id(input_id):
     return input_id
 
 
-def validate_path_component(component: str) -> None:
-    """Validate a path component to prevent path traversal attacks.
+def _generate_pcap_filename(node: str, rootid: str) -> str:
+    """Generate a safe filename from node and rootid using hash.
 
-    Raises ValueError if the component contains unsafe characters.
+    This avoids any path injection vulnerabilities by not using user
+    input directly in the filename.
     """
-    if not component:
-        raise ValueError("Path component cannot be empty")
-    if "/" in component or "\\" in component:
-        raise ValueError("Path component cannot contain directory separators")
-    if ".." in component:
-        raise ValueError("Path component cannot contain parent directory references")
-    if not re.match(r"^[a-zA-Z0-9._-]+$", component):
-        raise ValueError("Path component contains invalid characters")
+    combined = f"{node}:{rootid}"
+    file_hash = hashlib.sha256(combined.encode()).hexdigest()[:16]
+    return f"pcap_{file_hash}.pcap"
 
 
 def query_arkime(start, stop, query, field):
@@ -152,17 +149,9 @@ def get_rootid_from_sessionid(start, stop, session_id):
 
 def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
     """Retrieve pcap for id and and save as <id>.pcap in tempdir."""
-    validate_path_component(rootid)
-    if settings.api_multi:
-        validate_path_component(node)
-        pcap_file = Path(settings.api_tempdir) / (node + "-" + rootid + ".pcap")
-    else:
-        pcap_file = Path(settings.api_tempdir) / (rootid + ".pcap")
-    # Ensure the resolved path is within the intended directory
-    pcap_file = pcap_file.resolve()
-    base_dir = Path(settings.api_tempdir).resolve()
-    if not str(pcap_file).startswith(str(base_dir)):
-        raise ValueError("Path traversal detected: file would be outside temp directory")
+    # Generate a safe filename that doesn't depend on user input
+    filename = _generate_pcap_filename(node, rootid)
+    pcap_file = Path(settings.api_tempdir) / filename
 
     if not pcap_file.is_file():
         query = "id == " + rootid
@@ -203,10 +192,7 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
     stop = date_to_timestamp(iso_stop)
     session_id = clean_root_id(input_id)
     root_id = get_rootid_from_sessionid(start, stop, session_id)
-    try:
-        pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, 30)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="Invalid input: " + str(exc)) from exc
+    pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, 30)
 
     try:
         stream = NFStreamer(
