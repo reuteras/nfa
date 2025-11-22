@@ -125,15 +125,7 @@ def query_arkime(start, stop, query, field):
     base_url = settings.api_url + "/unique.txt?graphType=lpHisto&seriesType=bars&length=50"
 
     query_url = (
-        base_url
-        + "&startTime="
-        + start
-        + "&stopTime="
-        + stop
-        + "&expression="
-        + ul.quote_plus(query)
-        + "&exp="
-        + field
+        base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query) + "&exp=" + field
     )
 
     if settings.api_multi:

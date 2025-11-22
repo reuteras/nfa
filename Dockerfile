@@ -11,7 +11,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# hadolint ignore=DL3003
 RUN apt-get update --fix-missing && \
     apt-get install -qqy --no-install-recommends \
         ca-certificates=20250101 \
@@ -22,17 +21,15 @@ RUN apt-get update --fix-missing && \
         python3-pip=24.3.1+dfsg-1 \
         python3-venv=3.12.7-1 && \
     git clone --depth 1 --branch main https://github.com/reuteras/nfa.git /app && \
-    cd /app && \
-    rm -rf .git* && \
-    mkdir tmp && \
-    python3 -m venv .venv && \
-    .venv/bin/python3 -m pip install --no-cache-dir -U pip==24.3.1 setuptools==75.6.0 && \
-    .venv/bin/python3 -m pip install --no-cache-dir . && \
-    mkdir static && cd static && \
-    curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.18.2/swagger-ui-bundle.js && \
-    curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.18.2/swagger-ui.css && \
-    curl -O -s https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js && \
-    cd /app && \
+    rm -rf /app/.git* && \
+    mkdir /app/tmp && \
+    python3 -m venv /app/.venv && \
+    /app/.venv/bin/python3 -m pip install --no-cache-dir -U pip==24.3.1 setuptools==75.6.0 && \
+    /app/.venv/bin/python3 -m pip install --no-cache-dir /app && \
+    mkdir -p /app/static && \
+    curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.18.2/swagger-ui-bundle.js -o /app/static/swagger-ui-bundle.js && \
+    curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.18.2/swagger-ui.css -o /app/static/swagger-ui.css && \
+    curl -O -s https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js -o /app/static/redoc.standalone.js && \
     useradd -u 1000 -M -s /bin/bash nfa && \
     chown -R nfa:nfa /app && \
     apt-get remove -y gcc git && \
