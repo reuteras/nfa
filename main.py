@@ -105,6 +105,21 @@ def clean_root_id(input_id):
     return input_id
 
 
+def validate_path_component(component: str) -> None:
+    """Validate a path component to prevent path traversal attacks.
+
+    Raises ValueError if the component contains unsafe characters.
+    """
+    if not component:
+        raise ValueError("Path component cannot be empty")
+    if "/" in component or "\\" in component:
+        raise ValueError("Path component cannot contain directory separators")
+    if ".." in component:
+        raise ValueError("Path component cannot contain parent directory references")
+    if not re.match(r"^[a-zA-Z0-9._-]+$", component):
+        raise ValueError("Path component contains invalid characters")
+
+
 def query_arkime(start, stop, query, field):
     """Query Arkime API."""
     base_url = settings.api_url + "/unique.txt?graphType=lpHisto&seriesType=bars&length=50"
@@ -145,7 +160,9 @@ def get_rootid_from_sessionid(start, stop, session_id):
 
 def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
     """Retrieve pcap for id and and save as <id>.pcap in tempdir."""
+    validate_path_component(rootid)
     if settings.api_multi:
+        validate_path_component(node)
         pcap_file = Path(settings.api_tempdir + "/" + node + "-" + rootid + ".pcap")
     else:
         pcap_file = Path(settings.api_tempdir + "/" + rootid + ".pcap")
@@ -189,7 +206,10 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
     stop = date_to_timestamp(iso_stop)
     session_id = clean_root_id(input_id)
     root_id = get_rootid_from_sessionid(start, stop, session_id)
-    pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, 30)
+    try:
+        pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, 30)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid input: " + str(exc)) from exc
 
     try:
         stream = NFStreamer(
