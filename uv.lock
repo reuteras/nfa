@@ -402,7 +402,7 @@ dev = [{ name = "ruff", specifier = ">=0.13.2" }]
 
 [[package]]
 name = "nfstream"
-version = "6.5.3"
+version = "6.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cffi" },
@@ -412,15 +412,13 @@ dependencies = [
     { name = "psutil" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/ce/d74d61d7a944fbe10bbf31e5732529cacaee0e6f25786851dd492b737d7a/nfstream-6.5.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:828cd31d6185722fec4d69241d8c9582b02f667ba6d40440beced0752200792c", size = 747681, upload-time = "2022-10-26T10:05:39.384Z" },
-    { url = "https://files.pythonhosted.org/packages/d4/ae/504dd999bcbdcfe52f8caed598806e0bd7b6fe0175ea959fda266ddade9a/nfstream-6.5.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:19ae503d0b73d8ed77150e2268eeb0668646ce362db023644df3f37532c85920", size = 103019, upload-time = "2022-10-26T10:05:41.791Z" },
-    { url = "https://files.pythonhosted.org/packages/f8/27/2c875336ff58e6193400bb8b75a83a46bfb826125da770b57ffb1d45a90e/nfstream-6.5.3-cp311-cp311-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d2b8c302a638a56b7934091bf1b89080244b2d0cc192190ae72089d8b9b1a213", size = 1248847, upload-time = "2022-10-26T14:40:02.31Z" },
-    { url = "https://files.pythonhosted.org/packages/a5/e5/dd1d5140a6995ad0848cb5bd20c57a3f37348779e77f87d6150eaa99f90d/nfstream-6.5.3-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d3f880ebc9b4858516f64d745b11fd1ea6d43bfc2490779608cea69537cf10e4", size = 1307089, upload-time = "2022-10-26T14:40:04.701Z" },
-    { url = "https://files.pythonhosted.org/packages/98/ab/83c3338a163455db9e518e5bc6568dd14f0424aab496b2112da6ff97a8da/nfstream-6.5.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b9b29937a8ca50f25712a3a0510200ba8ca474e515a367dd3cb35e3e320a8749", size = 1311813, upload-time = "2022-10-26T14:40:06.89Z" },
-    { url = "https://files.pythonhosted.org/packages/a2/c8/0e37f9ee4a33aa7018bd4c5b0c79c0f098526bc1e0592b8be4dbe2115358/nfstream-6.5.3-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:ef4993be96f446b86d811e2d2f24283142cae1e9749c211b36313cfdc494d618", size = 1233829, upload-time = "2022-10-26T14:40:09.524Z" },
-    { url = "https://files.pythonhosted.org/packages/9c/6c/5b8e211efa905713ca477d977d490ce52aab8105ed8a588c4570bb1ac981/nfstream-6.5.3-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:e173cebfe80f09f662707ff375e223e164e93399a52d5bbee572804509d7c112", size = 1173327, upload-time = "2022-10-26T14:40:11.728Z" },
-    { url = "https://files.pythonhosted.org/packages/a1/3c/75c8ce5392e92d11c1751c7dde2ed754175a7c9f9f489eba43a8f7c0fe17/nfstream-6.5.3-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:a45b018aed5ebf6c1a56f3df1f289bb33d573b2f3a8deaf6049c0b055b981702", size = 1234150, upload-time = "2022-10-26T14:40:13.819Z" },
-    { url = "https://files.pythonhosted.org/packages/59/4a/0282d81197e58b9de3ce47e0889928e99becb1e1e38b10e952a9d1e880d2/nfstream-6.5.3-cp311-cp311-win_amd64.whl", hash = "sha256:7ebedf7d3e92a0ce3877acab88ed347728a5475a3b475e0287126b6058a3a1d9", size = 743734, upload-time = "2022-10-26T10:37:52.242Z" },
+    { url = "https://files.pythonhosted.org/packages/70/87/7d19d297cb3975a48e18d1d9812dd0f8cba85dafac15937749fdfae8bb5c/nfstream-6.5.4-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:85cfbc3e08fc3e6feaa89d904a33ab60aa1fdbd9f0bd729cfff0ca2b060ac687", size = 109070, upload-time = "2025-11-16T23:44:18.771Z" },
+    { url = "https://files.pythonhosted.org/packages/47/92/d12730d6c670150d271e34b0530a06662179ee13d8d15d75c16b448beff1/nfstream-6.5.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:8ac91358ae9351de6e9af0ce8da2b6d23191335c86325ad38e32ae80a6f2076c", size = 746719, upload-time = "2025-11-16T23:44:19.657Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/5e/c1f1e6713827951d2910b20511a4daee3f9feaf37f9ade9591e30b7f99e5/nfstream-6.5.4-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:45364a7c31e6fac9311da1491b93b0740681d54071202990a4b82f378a6baff9", size = 1348962, upload-time = "2025-11-18T12:55:24.01Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/75/fe502caeec367e018f13bbbc965d1089867a3767ac52c4a91cb0873fb112/nfstream-6.5.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:71e07668b8dadfc9b76679d52e7307cc97f7e346bc83abc890751e80571871d4", size = 1357222, upload-time = "2025-11-18T12:55:44.767Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/aa/a10f544734caceb0c1c98e55a4ff66a47f36cc0d262161b98aef549f9625/nfstream-6.5.4-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:35cf7c668c53643a7518b8087e70d46f6943b8b67e57327572612c548af6ba82", size = 1328549, upload-time = "2025-11-18T12:55:25.173Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/08/ecf20e34375062b9d5ae51f2e71aa2168cd74f210742c0d5b78ecf1dee5c/nfstream-6.5.4-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:9bf78320b989b4982ba41953d4c4d78f0990997af1f66d84f52bc64c72958e25", size = 1334901, upload-time = "2025-11-18T12:55:46.403Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/f6/40fdb4a541b6104a9a755710585c5ca804625c3952f4d0d3756806728927/nfstream-6.5.4-cp311-cp311-win_amd64.whl", hash = "sha256:6027603b4009dbd55068ba8002ec8386a87c9515ff02a8b0be17f8ab9659da0d", size = 775905, upload-time = "2025-11-17T02:00:09.838Z" },
 ]
 
 [[package]]
