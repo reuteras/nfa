@@ -12,6 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
 RUN apt-get update --fix-missing && \
+    # hadolint ignore=DL3008
     apt-get install -qqy --no-install-recommends \
         ca-certificates \
         curl \
