@@ -13,18 +13,18 @@ WORKDIR /app
 
 RUN apt-get update --fix-missing && \
     apt-get install -qqy --no-install-recommends \
-        ca-certificates=20250101 \
-        curl=8.12.0-1 \
-        gcc=4:14.2.0-1 \
-        git=1:2.48.0-1 \
-        python3-dev=3.12.7-1 \
-        python3-pip=24.3.1+dfsg-1 \
-        python3-venv=3.12.7-1 && \
+        ca-certificates \
+        curl \
+        gcc \
+        git \
+        python3-dev \
+        python3-pip \
+        python3-venv && \
     git clone --depth 1 --branch main https://github.com/reuteras/nfa.git /app && \
     rm -rf /app/.git* && \
     mkdir /app/tmp && \
     python3 -m venv /app/.venv && \
-    /app/.venv/bin/python3 -m pip install --no-cache-dir -U pip==24.3.1 setuptools==75.6.0 && \
+    /app/.venv/bin/python3 -m pip install --no-cache-dir -U pip setuptools && \
     /app/.venv/bin/python3 -m pip install --no-cache-dir /app && \
     mkdir -p /app/static && \
     curl -O -s https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.18.2/swagger-ui-bundle.js -o /app/static/swagger-ui-bundle.js && \
