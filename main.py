@@ -4,6 +4,8 @@
 import configparser
 import hashlib
 import json
+import logging
+import os
 import re
 import sys
 import typing
@@ -31,6 +33,46 @@ config.read("config.ini")
 session = requests.Session()
 session.verify = False
 disable_warnings(category=InsecureRequestWarning)
+
+
+class _JsonFormatter(logging.Formatter):
+    """JSON log formatter for structured logging in container environments."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        """Format log record as a JSON string."""
+        data: dict[str, str] = {
+            "time": self.formatTime(record, "%Y-%m-%dT%H:%M:%SZ"),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        if record.exc_info:
+            data["exception"] = self.formatException(record.exc_info)
+        return json.dumps(data)
+
+
+def _setup_logger() -> logging.Logger:
+    """Set up and return the nfa logger for container environments.
+
+    Log level is resolved in priority order: LOG_LEVEL env var > config.ini [logging] level > INFO.
+    Logs are written to stdout as JSON for consumption by container log aggregators.
+    """
+    config_level = "INFO"
+    try:
+        config_level = config["logging"]["level"]
+    except KeyError:
+        pass
+    log_level_str = os.environ.get("LOG_LEVEL", config_level)
+    log_level = getattr(logging, log_level_str.upper(), logging.INFO)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(_JsonFormatter())
+
+    logging.basicConfig(level=log_level, handlers=[handler])
+    return logging.getLogger("nfa")
+
+
+logger = _setup_logger()
 
 
 # pylint: disable=R0903
@@ -125,6 +167,7 @@ def query_arkime(start, stop, query, field):
         base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query) + "&exp=" + field
     )
 
+    logger.debug("Querying Arkime: field=%s query=%s", field, query)
     if settings.api_multi:
         result = requests.get(
             query_url, verify=False, timeout=60, auth=HTTPDigestAuth(settings.api_username, settings.api_password)
@@ -132,7 +175,7 @@ def query_arkime(start, stop, query, field):
     else:
         result = requests.get(query_url, verify=False, timeout=60)
     if result.status_code != 200:  # noqa PLR2004
-        print(result.content.decode())
+        logger.error("Arkime query failed: HTTP %s - %s", result.status_code, result.content.decode())
         raise HTTPException(status_code=404, detail="Item not found")
     return result.content.decode()
 
@@ -169,6 +212,7 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
             base_url = settings.api_url + ":" + settings.api_port + "/sessions.pcap?length=" + str(limit)
         url = base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query)
 
+        logger.debug("Fetching PCAP for rootid=%s node=%s", rootid, node)
         try:
             if settings.api_multi:
                 pcap_data = requests.get(
@@ -177,9 +221,10 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
             else:
                 pcap_data = requests.get(url, verify=False, timeout=300)
         except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
-            print(error)
-            sys.exit()
+            logger.error("Failed to retrieve PCAP for rootid=%s: %s", rootid, error)
+            raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime") from error
 
+        logger.info("PCAP saved: %s (%d bytes)", pcap_file, len(pcap_data.content))
         pcap_file.write_bytes(pcap_data.content)
     return pcap_file
 
@@ -188,6 +233,7 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
     """Returns the nfstream result for the first flow (and only flow) in the pcap."""
     nfstream_result = {}
 
+    logger.info("Processing request: id=%s node=%s start=%s stop=%s", input_id, node, iso_start, iso_stop)
     start = date_to_timestamp(iso_start)
     stop = date_to_timestamp(iso_stop)
     session_id = clean_root_id(input_id)
@@ -212,7 +258,8 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
             performance_report=0,
         )
     except Exception as exc:
-        raise HTTPException(status_code=404, detail="NFStreamer failed: " + exc) from exc
+        logger.error("NFStreamer failed for %s: %s", pcap_file, exc)
+        raise HTTPException(status_code=404, detail="NFStreamer failed: " + str(exc)) from exc
 
     for flow in stream:
         for key in flow.keys():
@@ -220,6 +267,7 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
         # Should only be one flow so break
         break
 
+    logger.debug("NFStreamer returned %d fields for id=%s", len(nfstream_result), input_id)
     pcap_file.unlink()
     return nfstream_result
 
