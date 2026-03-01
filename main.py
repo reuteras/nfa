@@ -23,7 +23,7 @@ from fastapi.openapi.docs import (
 from fastapi.staticfiles import StaticFiles
 from nfstream import NFStreamer
 from pydantic_settings import BaseSettings
-from requests.auth import HTTPDigestAuth
+from requests.auth import HTTPBasicAuth
 from starlette.responses import Response
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
@@ -170,7 +170,7 @@ def query_arkime(start, stop, query, field):
     logger.debug("Querying Arkime: field=%s query=%s", field, query)
     if settings.api_multi:
         result = requests.get(
-            query_url, verify=False, timeout=60, auth=HTTPDigestAuth(settings.api_username, settings.api_password)
+            query_url, verify=False, timeout=60, auth=HTTPBasicAuth(settings.api_username, settings.api_password)
         )
     else:
         result = requests.get(query_url, verify=False, timeout=60)
@@ -216,7 +216,7 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
         try:
             if settings.api_multi:
                 pcap_data = requests.get(
-                    url, verify=False, timeout=300, auth=HTTPDigestAuth(settings.api_username, settings.api_password)
+                    url, verify=False, timeout=300, auth=HTTPBasicAuth(settings.api_username, settings.api_password)
                 )
             else:
                 pcap_data = requests.get(url, verify=False, timeout=300)
