@@ -208,14 +208,32 @@ def get_rootid_from_sessionid(start, stop, session_id):
     return root_id.strip()
 
 
-def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
+def _fetch_pcap(base_url, start, stop, query):
+    """Fetch PCAP data from Arkime. Returns response or raises HTTPException."""
+    url = base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query)
+    try:
+        if settings.api_multi:
+            pcap_data = requests.get(
+                url, verify=False, timeout=300, auth=HTTPBasicAuth(settings.api_username, settings.api_password)
+            )
+        else:
+            pcap_data = requests.get(url, verify=False, timeout=300)
+    except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
+        logger.error("PCAP fetch failed for query=%s: %s", query, error)
+        raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime") from error
+    if pcap_data.status_code != 200:  # noqa PLR2004
+        logger.error("PCAP download HTTP %s for query=%s: %s", pcap_data.status_code, query, pcap_data.content.decode(errors="replace"))
+        raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime")
+    return pcap_data
+
+
+def retrive_pcap_from_sessionid(start, stop, node, rootid, session_id=None, limit=2000):
     """Retrieve pcap for id and and save as <id>.pcap in tempdir."""
     # Generate a safe filename that doesn't depend on user input
     filename = _generate_pcap_filename(node, rootid)
     pcap_file = Path(settings.api_tempdir) / filename
 
     if not pcap_file.is_file():
-        query = "rootId == " + rootid
         if settings.api_pcap_url:
             base_url = settings.api_pcap_url + "/sessions.pcap?length=" + str(limit)
         elif settings.api_multi:
@@ -230,23 +248,18 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
             )
         else:
             base_url = settings.api_url + ":" + settings.api_port + "/sessions.pcap?length=" + str(limit)
-        url = base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query)
 
         logger.debug("Fetching PCAP for rootid=%s node=%s", rootid, node)
-        try:
-            if settings.api_multi:
-                pcap_data = requests.get(
-                    url, verify=False, timeout=300, auth=HTTPBasicAuth(settings.api_username, settings.api_password)
-                )
-            else:
-                pcap_data = requests.get(url, verify=False, timeout=300)
-        except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
-            logger.error("Failed to retrieve PCAP for rootid=%s: %s", rootid, error)
-            raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime") from error
+        pcap_data = _fetch_pcap(base_url, start, stop, "rootId == " + rootid)
 
-        if pcap_data.status_code != 200:  # noqa PLR2004
-            logger.error("PCAP download failed: HTTP %s - %s", pcap_data.status_code, pcap_data.content.decode(errors="replace"))
-            raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime")
+        if len(pcap_data.content) == 0 and session_id:
+            logger.warning("rootId query returned 0 bytes, retrying with id == %s", session_id)
+            pcap_data = _fetch_pcap(base_url, start, stop, "id == " + session_id)
+
+        if len(pcap_data.content) == 0:
+            logger.error("PCAP download returned 0 bytes for rootid=%s session_id=%s", rootid, session_id)
+            raise HTTPException(status_code=503, detail="Arkime returned empty PCAP (PCAP files may have been purged)")
+
         logger.info("PCAP saved: %s (%d bytes)", pcap_file, len(pcap_data.content))
         pcap_file.write_bytes(pcap_data.content)
     return pcap_file
@@ -261,7 +274,7 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
     stop = date_to_timestamp(iso_stop)
     session_id = clean_root_id(input_id)
     root_id = get_rootid_from_sessionid(start, stop, session_id)
-    pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, 30)
+    pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, session_id, 30)
 
     try:
         stream = NFStreamer(
