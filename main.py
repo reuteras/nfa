@@ -99,6 +99,7 @@ class Settings(BaseSettings):
     api_username: str = "username"
     api_password: str = "password"
     api_url: str = "http://server.example.com:8009"
+    api_pcap_url: str = ""
     api_domain: str = "example.com"
     api_port: str = "8005"
     api_proto: str = "http://"
@@ -124,6 +125,10 @@ class Settings(BaseSettings):
         api_proto = config["api"]["proto"]
     if config["api"]["tempdir"] != "":
         api_tempdir = config["api"]["tempdir"]
+    try:
+        api_pcap_url = config["api"]["pcap_url"]
+    except KeyError:
+        api_pcap_url = ""
 
 
 settings = Settings()
@@ -204,7 +209,9 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
 
     if not pcap_file.is_file():
         query = "id == " + rootid
-        if settings.api_multi:
+        if settings.api_pcap_url:
+            base_url = settings.api_pcap_url + "/sessions.pcap?length=" + str(limit)
+        elif settings.api_multi:
             base_url = (
                 settings.api_proto
                 + node
