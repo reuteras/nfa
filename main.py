@@ -215,7 +215,7 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
     pcap_file = Path(settings.api_tempdir) / filename
 
     if not pcap_file.is_file():
-        query = "id == " + rootid
+        query = "rootId == " + rootid
         if settings.api_pcap_url:
             base_url = settings.api_pcap_url + "/sessions.pcap?length=" + str(limit)
         elif settings.api_multi:
@@ -244,6 +244,9 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, limit=2000):
             logger.error("Failed to retrieve PCAP for rootid=%s: %s", rootid, error)
             raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime") from error
 
+        if pcap_data.status_code != 200:  # noqa PLR2004
+            logger.error("PCAP download failed: HTTP %s - %s", pcap_data.status_code, pcap_data.content.decode(errors="replace"))
+            raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime")
         logger.info("PCAP saved: %s (%d bytes)", pcap_file, len(pcap_data.content))
         pcap_file.write_bytes(pcap_data.content)
     return pcap_file
