@@ -132,6 +132,13 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+logger.info(
+    "Settings loaded: url=%s pcap_url=%s multi=%s username=%s",
+    settings.api_url,
+    settings.api_pcap_url,
+    settings.api_multi,
+    settings.api_username,
+)
 app = FastAPI(docs_url=None, redoc_url=None)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
