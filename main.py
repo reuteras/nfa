@@ -167,7 +167,7 @@ def query_arkime(start, stop, query, field):
         base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query) + "&exp=" + field
     )
 
-    logger.debug("Querying Arkime: field=%s query=%s", field, query)
+    logger.debug("Querying Arkime: field=%s query=%s username=%s", field, query, settings.api_username)
     if settings.api_multi:
         result = requests.get(
             query_url, verify=False, timeout=60, auth=HTTPBasicAuth(settings.api_username, settings.api_password)
@@ -175,7 +175,13 @@ def query_arkime(start, stop, query, field):
     else:
         result = requests.get(query_url, verify=False, timeout=60)
     if result.status_code != 200:  # noqa PLR2004
-        logger.error("Arkime query failed: HTTP %s - %s", result.status_code, result.content.decode())
+        www_auth = result.headers.get("WWW-Authenticate", "not present")
+        logger.error(
+            "Arkime query failed: HTTP %s - WWW-Authenticate: %s - %s",
+            result.status_code,
+            www_auth,
+            result.content.decode(),
+        )
         raise HTTPException(status_code=404, detail="Item not found")
     return result.content.decode()
 
