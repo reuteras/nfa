@@ -176,7 +176,15 @@ def query_arkime(start, stop, query, field):
     base_url = settings.api_url + "/unique.txt?graphType=lpHisto&seriesType=bars&length=50"
 
     query_url = (
-        base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query) + "&exp=" + field
+        base_url
+        + "&startTime="
+        + start
+        + "&stopTime="
+        + stop
+        + "&expression="
+        + ul.quote_plus(query)
+        + "&exp="
+        + field
     )
 
     logger.debug("Querying Arkime: field=%s query=%s username=%s", field, query, settings.api_username)
@@ -222,7 +230,12 @@ def _fetch_pcap(base_url, start, stop, query):
         logger.error("PCAP fetch failed for query=%s: %s", query, error)
         raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime") from error
     if pcap_data.status_code != 200:  # noqa PLR2004
-        logger.error("PCAP download HTTP %s for query=%s: %s", pcap_data.status_code, query, pcap_data.content.decode(errors="replace"))
+        logger.error(
+            "PCAP download HTTP %s for query=%s: %s",
+            pcap_data.status_code,
+            query,
+            pcap_data.content.decode(errors="replace"),
+        )
         raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime")
     return pcap_data
 
