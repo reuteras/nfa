@@ -217,27 +217,28 @@ def get_rootid_from_sessionid(start, stop, session_id):
 
 
 def _fetch_pcap(base_url, start, stop, query):
-    """Fetch PCAP data from Arkime. Returns response or raises HTTPException."""
+    """Fetch PCAP data from Arkime. Returns response, or raises HTTPException on connection errors."""
     url = base_url + "&startTime=" + start + "&stopTime=" + stop + "&expression=" + ul.quote_plus(query)
     try:
         if settings.api_multi:
-            pcap_data = requests.get(
+            return requests.get(
                 url, verify=False, timeout=300, auth=HTTPBasicAuth(settings.api_username, settings.api_password)
             )
-        else:
-            pcap_data = requests.get(url, verify=False, timeout=300)
+        return requests.get(url, verify=False, timeout=300)
     except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
         logger.error("PCAP fetch failed for query=%s: %s", query, error)
         raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime") from error
-    if pcap_data.status_code != 200:  # noqa PLR2004
-        logger.error(
-            "PCAP download HTTP %s for query=%s: %s",
-            pcap_data.status_code,
-            query,
-            pcap_data.content.decode(errors="replace"),
-        )
-        raise HTTPException(status_code=503, detail="Failed to retrieve PCAP from Arkime")
-    return pcap_data
+
+
+def _pcap_response_ok(response, query):
+    """Return True if the response contains usable PCAP data."""
+    if response.status_code != 200:  # noqa PLR2004
+        logger.debug("PCAP query returned HTTP %s for query=%s: %s", response.status_code, query, response.content.decode(errors="replace"))
+        return False
+    if len(response.content) == 0:
+        logger.debug("PCAP query returned 0 bytes for query=%s", query)
+        return False
+    return True
 
 
 def retrive_pcap_from_sessionid(start, stop, node, rootid, session_id=None, limit=2000):
@@ -263,15 +264,17 @@ def retrive_pcap_from_sessionid(start, stop, node, rootid, session_id=None, limi
             base_url = settings.api_url + ":" + settings.api_port + "/sessions.pcap?length=" + str(limit)
 
         logger.debug("Fetching PCAP for rootid=%s node=%s", rootid, node)
-        pcap_data = _fetch_pcap(base_url, start, stop, "rootId == " + rootid)
+        query = "rootId == " + rootid
+        pcap_data = _fetch_pcap(base_url, start, stop, query)
 
-        if len(pcap_data.content) == 0 and session_id:
-            logger.warning("rootId query returned 0 bytes, retrying with id == %s", session_id)
-            pcap_data = _fetch_pcap(base_url, start, stop, "id == " + session_id)
+        if not _pcap_response_ok(pcap_data, query) and session_id:
+            query = "id == " + session_id
+            logger.warning("rootId query failed, retrying with %s", query)
+            pcap_data = _fetch_pcap(base_url, start, stop, query)
 
-        if len(pcap_data.content) == 0:
-            logger.error("PCAP download returned 0 bytes for rootid=%s session_id=%s", rootid, session_id)
-            raise HTTPException(status_code=503, detail="Arkime returned empty PCAP (PCAP files may have been purged)")
+        if not _pcap_response_ok(pcap_data, query):
+            logger.error("PCAP download failed for rootid=%s session_id=%s: HTTP %s", rootid, session_id, pcap_data.status_code)
+            raise HTTPException(status_code=503, detail="Arkime returned no PCAP data (files may have been purged)")
 
         logger.info("PCAP saved: %s (%d bytes)", pcap_file, len(pcap_data.content))
         pcap_file.write_bytes(pcap_data.content)
