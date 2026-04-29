@@ -8,7 +8,7 @@ license = { text = "MIT" }
 dependencies = [
     "fastapi[all]>=0.135.3",
     "nfstream>=5.1.0",
-    "pydantic-settings>=2.11.0",
+    "pydantic-settings>=2.14.0",
     "pylint>=3.3.8",
     "requests>=2.32.5",
 ]
