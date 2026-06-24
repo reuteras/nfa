@@ -9,7 +9,7 @@ dependencies = [
     "fastapi[all]>=0.136.3",
     "nfstream>=5.1.0",
     "pydantic-settings>=2.14.2",
-    "pylint>=3.3.8",
+    "pylint>=4.0.6",
     "requests>=2.32.5",
 ]
 
