@@ -241,8 +241,9 @@ def _pcap_response_ok(response, query):
     return True
 
 
-def retrive_pcap_from_sessionid(start, stop, node, rootid, session_id=None, limit=2000):
+def retrive_pcap_from_sessionid(time_range, node, rootid, session_id=None, limit=2000):
     """Retrieve pcap for id and and save as <id>.pcap in tempdir."""
+    start, stop = time_range
     # Generate a safe filename that doesn't depend on user input
     filename = _generate_pcap_filename(node, rootid)
     pcap_file = Path(settings.api_tempdir) / filename
@@ -290,7 +291,7 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
     stop = date_to_timestamp(iso_stop)
     session_id = clean_root_id(input_id)
     root_id = get_rootid_from_sessionid(start, stop, session_id)
-    pcap_file = retrive_pcap_from_sessionid(start, stop, node, root_id, session_id, 30)
+    pcap_file = retrive_pcap_from_sessionid((start, stop), node, root_id, session_id, 30)
 
     try:
         stream = NFStreamer(
