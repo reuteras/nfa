@@ -114,10 +114,7 @@ class Settings(BaseSettings):
         api_url = config["api"]["url"]
     # Allow domain to be empty
     api_domain = config["api"]["domain"]
-    try:
-        api_multi = config["api"]["multi"]
-    except KeyError:
-        api_multi = True
+    api_multi = config["api"].getboolean("multi", True)
 
     if config["api"]["port"] != "":
         api_port = config["api"]["port"]
