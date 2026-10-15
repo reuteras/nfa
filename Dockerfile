@@ -39,8 +39,8 @@ RUN apt-get update --fix-missing && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-USER nfa
+USER 1000
 EXPOSE 5001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5001/docs || exit 1
+    CMD ["/bin/sh", "-c", "curl -f http://localhost:5001/docs || exit 1"]
 CMD ["./.venv/bin/uvicorn", "main:app", "--port", "5001", "--host", "0.0.0.0"]

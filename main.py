@@ -100,11 +100,9 @@ class Settings(BaseSettings):
     api_password: str = "password"
     api_url: str = "http://server.example.com:8009"
     api_pcap_url: str = ""
-    api_domain: str = "example.com"
     api_port: str = "8005"
     api_proto: str = "http://"
     api_tempdir: str = "tmp"
-    api_multi: bool = True
 
     if config["api"]["username"] != "":
         api_username = config["api"]["username"]
@@ -113,8 +111,8 @@ class Settings(BaseSettings):
     if config["api"]["url"] != "":
         api_url = config["api"]["url"]
     # Allow domain to be empty
-    api_domain = config["api"]["domain"]
-    api_multi = config["api"].getboolean("multi", True)
+    api_domain: str = config["api"]["domain"]
+    api_multi: bool = config["api"].getboolean("multi", True)
 
     if config["api"]["port"] != "":
         api_port = config["api"]["port"]
@@ -191,7 +189,7 @@ def query_arkime(start, stop, query, field):
         )
     else:
         result = requests.get(query_url, verify=False, timeout=60)
-    if result.status_code != 200:  # noqa PLR2004
+    if result.status_code != requests.codes.ok:
         www_auth = result.headers.get("WWW-Authenticate", "not present")
         logger.error(
             "Arkime query failed: HTTP %s - WWW-Authenticate: %s - %s",
@@ -229,7 +227,7 @@ def _fetch_pcap(base_url, start, stop, query):
 
 def _pcap_response_ok(response, query):
     """Return True if the response contains usable PCAP data."""
-    if response.status_code != 200:  # noqa PLR2004
+    if response.status_code != requests.codes.ok:
         logger.debug("PCAP query returned HTTP %s for query=%s: %s", response.status_code, query, response.content.decode(errors="replace"))
         return False
     if len(response.content) == 0:
@@ -312,7 +310,9 @@ def get_nfstream_info(input_id, iso_start, iso_stop, node):
         raise HTTPException(status_code=404, detail="NFStreamer failed: " + str(exc)) from exc
 
     for flow in stream:
-        for key in flow.keys():
+        # NFlow is not a dict and is not iterable; keys() returns its attribute names
+        flow_keys = flow.keys()
+        for key in flow_keys:
             nfstream_result[key] = getattr(flow, key)
         # Should only be one flow so break
         break
