@@ -13,6 +13,7 @@ WORKDIR /app
 
 # hadolint ignore=DL3008
 RUN apt-get update --fix-missing && \
+    apt-get upgrade -qqy && \
     apt-get install -qqy --no-install-recommends \
         ca-certificates \
         curl \
@@ -34,6 +35,7 @@ RUN apt-get update --fix-missing && \
     useradd -u 1000 -M -s /bin/bash nfa && \
     chown -R nfa:nfa /app && \
     apt-get remove -y gcc git && \
+    apt-get purge -y python3-pip python3-pip-whl python3-setuptools-whl python3-wheel && \
     apt-get autoremove -y && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/*
